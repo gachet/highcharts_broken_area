@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>InfoViz - IoT Devices</title>
+  <link rel="shortcut icon" href="">
+  <!--<link rel="stylesheet" href="_css/main.css"> -->
+  <script src="_js/jquery-1.11.0.min.js"></script>
+  <script src="_js/highcharts.js"></script>
+  <script src="_js/highcharts-more.js"></script>
+  <script src="_js/exporting.js"></script>
+  <script src="http://blacklabel.github.io/grouped_categories/grouped-categories.js"></script>
+  <!--Ref: http://jsfiddle.net/cFu8z/126/ -->
+</head>
+
+<body>
+  <div id="wrapper">
+    <h3>Sales of IoT devices: 2013 - 2016</h3>
+    <p>by Carina Sauter and Usman Raza</p>
+    <div id='main_chart' ></div>
+    <div id='line_c'></div>
+
+  </div>
+  <div id="chartspace" style="height:400px;width:800px;margin:0 auto;">
+    <script>
+    $(function () {
+      Highcharts.setOptions({
+        chart: {
+          style: {
+            fontFamily: "Helvetica,Arial,sans-serif"
+          }
+        },
+        legend: {
+          borderRadius: 0,
+          layout: 'vertical',
+          align: 'left',
+          x: 50,
+          y: 30,
+          verticalAlign: 'top',
+          floating: true,
+          backgroundColor: '#ffffff',
+          borderColor: '#E6E6E6',
+          borderWidth: 0.5,
+          borderRadius: 0,
+          shadow: true,
+          itemStyle: {
+            color: "#000000",
+            fontFamily: "Helvetica,Arial,sans-serif"
+          }
+        },
+        title: {
+          style: {
+            color: "#000000",
+            fontFamily: "Helvetica,Arial,sans-serif",
+            fontSize: "20px",
+            fontWeight: "bold"
+          }
+        },
+
+        xAxis: {
+          labels: {
+            style: {
+              color: "#333333",
+              fontFamily: "Helvetica,Arial,sans-serif",
+              fontSize: 8,
+            },
+            rotation: 0,
+          },
+        },
+
+        yAxis: {
+          labels: {
+            style: {
+              color: "#333333",
+              fontFamily: "Helvetica,Arial,sans-serif"
+            }
+          },
+          min: 0,
+          // max: 7000,
+          plotLines: [{
+            value: 0,
+            width: 1,
+            color: "#808080"
+          }],
+          title: {
+            style: {
+              color: "#333333",
+              fontFamily: "Helvetica,Arial,sans-serif"
+            },
+            text: "Total number of devices"
+          }
+        },
+
+      })
+    });
+
+    var years = ['', '13', '14','15', '16'];
+
+    var optionsOne = {
+      xAxis: {
+        categories: [{
+          name: 'Bluetooth Headset',
+          categories: years
+        },
+        {
+          name: 'Body Camera',
+          categories: years
+        },
+        {
+          name: 'Chest Strap',
+          categories: years
+        },
+        {
+          name: 'Head Mounted Display',
+          categories: years
+        },
+        {
+          name: 'Other',
+          categories: years
+        },
+        {
+          name: 'Smart Glasses',
+          categories: years
+        },
+        {
+          name: 'Smart Watch',
+          categories: years
+        },
+        {
+          name: 'Sports Watch',
+          categories: years
+        },
+        {
+          name: 'Wristband',
+          categories: years
+        }],
+      },
+    }
+
+    var chartOne = {
+      chart: {
+        renderTo: 'chartspace',
+        type: 'area'
+      },
+      title: {
+        text: "IoT devices sold and returned"
+      },
+
+      plotOptions: {
+        area: {
+          marker: {
+            enabled: false,
+            symbol: 'circle',
+            radius: 2,
+            states: {
+              hover: {
+                enabled: true
+              }
+            }
+          }
+        }
+      },
+
+
+      series: []
+    };
+
+    var optionsTwo = {
+      xAxis: {
+        tickWidth: 0,
+        labels: {
+          enabled: false
+        },
+        // name: '',
+        // categories: ['Bluetooth Headset','Body Camera','Chest Strap','Head Mounted Display','Other','Smart Glasses', 'Smart Watch','Sports Watch','Wristband',]
+      },
+      yAxis: {
+        reversed: true,
+        labels: {
+          enabled: false
+        },
+        gridLineWidth: 0,
+      },
+      legend: {
+        x: 50,
+        y: 100,
+      },
+    };
+
+      var chartTwo = {
+        chart: {
+          renderTo: 'dtschart',
+          type: 'column'
+        },
+        title: {
+          text: ""
+        },
+
+        plotOptions: {
+          area: {
+            marker: {
+              enabled: false,
+              symbol: 'circle',
+              radius: 2,
+              states: {
+                hover: {
+                  enabled: true
+                }
+              }
+            }
+          },
+        },
+
+        series: []
+      };
+
+
+      $.get("_data/sorted_data.csv", function (data) {
+        var lines = data.split('\n');
+        var products = [];
+        var years = [];
+        var sales_numbers = [];
+        var average_days_to_ship = [];
+        var perc_returned = [];
+
+        $.each(lines, function ( lineNo, line ) {
+          var items = line.split(",");
+          var count = -1;
+          if (lineNo == 0) {
+            return true
+          };
+          total_returned = parseFloat(items[1] * parseFloat(items[4])/100);
+
+          if ((lineNo + 3) %  4 == 0) {
+            sales_numbers.push(parseFloat(null));
+            // average_days_to_ship.push(parseFloat(null));
+            perc_returned.push(null);
+            average_days_to_ship.push(parseFloat(items[3]));
+            // options.xAxis.categories.push(items[0]);
+            // count += 1;
+          };
+
+          // options.xAxis.categories.push(items[0]);
+
+          sales_numbers.push(parseFloat(items[1]));
+          // average_days_to_ship.push(parseFloat(items[3]));
+          perc_returned.push(total_returned);
+        });
+
+
+        var salesObject = {
+          name: 'total devices sold',
+          data: sales_numbers
+        };
+
+        var returnsObject = {
+          name: 'devices returned',
+          data: perc_returned
+        };
+
+        var dtsObject = {
+          name: 'Days to ship',
+          data: average_days_to_ship,
+          color: '#FED001',
+          dataLabels: {
+                enabled: true,
+                style: {
+                  fontWeight: 1,
+                  color: "#000000"
+                },
+            }
+        };
+
+        chartOne.series.push(salesObject);
+        chartOne.series.push(returnsObject);
+        chartTwo.series.push(dtsObject);
+
+        chartOne = jQuery.extend(true, {}, optionsOne, chartOne);
+        var chartOneRendered = new Highcharts.Chart(chartOne);
+
+        chartTwo = jQuery.extend(true, {}, optionsTwo, chartTwo);
+        var chartTwoRendered = new Highcharts.Chart(chartTwo);
+
+        console.log(chartOne);
+        console.log(chartTwo);
+      });
+      </script>
+    </div>
+    <div id="dtschart" style="height:200px;width:800px;margin:0 auto;">
+    </div>
+  </body>
+  </html>
